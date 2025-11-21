@@ -32,3 +32,5 @@ npm-debug.log*
 *.tsbuildinfo
 .env
 .env
+
+/generated/prisma
