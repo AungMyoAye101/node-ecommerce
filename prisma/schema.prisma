@@ -12,3 +12,75 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  token      String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  //relation
+  addresses Address[]
+  product   Product[]
+  cart      Cart?
+}
+
+model Address {
+  id      String @id @default(uuid())
+  line    String
+  city    String
+  country String
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  //relation
+  image     Image?
+  userId    String      @unique
+  user      User?       @relation(fields: [userId], references: [id])
+  cartItems CartItems[]
+}
+
+model Image {
+  id         String   @id @default(uuid())
+  name       String?
+  public_id  String
+  secure_url String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  //relatiion
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Cart {
+  id String @id @default(uuid())
+
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  //relation
+  userId     String      @unique
+  user       User        @relation(fields: [userId], references: [id])
+  cartItems  CartItems[]
+}
+
+model CartItems {
+  id          String @id @default(uuid())
+  total_price Int
+
+  //relation
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id])
+  cartId    String  @unique
+  cart      Cart    @relation(fields: [cartId], references: [id])
+}
