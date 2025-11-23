@@ -13,17 +13,23 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  user
+  admin
+  staff
+}
+
 model User {
   id         String   @id @default(uuid())
   name       String
   email      String   @unique
+  role       UserRole
   token      String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   //relation
   addresses Address[]
-  product   Product[]
   cart      Cart?
 }
 
@@ -46,7 +52,6 @@ model Product {
   //relation
   image     Image?
   userId    String      @unique
-  user      User?       @relation(fields: [userId], references: [id])
   cartItems CartItems[]
 }
 

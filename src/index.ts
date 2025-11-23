@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import type { Request, Response } from "express";
 import { errorHandler } from "./middlewares/errorHandling.middleware";
+import authRouter from "./routes/auth.route";
 dotenv.config()
 
 const PORT = process.env.PORT || 8000;
@@ -19,6 +20,9 @@ app.use(cors({
     origin: "*",
     credentials: true
 }))
+
+//routes
+app.use('/api/v1', authRouter)
 
 
 //error handling middleware must be last middleware
