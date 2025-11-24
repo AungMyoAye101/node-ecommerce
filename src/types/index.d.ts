@@ -1,5 +1,20 @@
-export type payload_type = {
-    userId: number,
+
+
+import "express";
+export interface TokenPayload {
+    userId: string,
     email: string,
     role: UserRole
 }
+
+declare global {
+    namespace Express {
+        interface Request {
+            user?: TokenPayload,
+            validatedBody?: any,
+            validatedParams?: any,
+            validatedQuery?: any,
+        }
+    }
+}
+

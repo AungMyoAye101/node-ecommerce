@@ -10,14 +10,11 @@ export const registerService = async ({ name, email, password }: registerType) =
         throw new BadRequestError("Email already exist.")
     }
 
-    const hashedPassword = hashPassword(password);
-    const user = await prisma.user.create(data: { name, email, password: hashedPassword });
-    const ACCESS_TOKEN = generateAccessToken({ userId: user.id, email });
-    const REFRESH_TOKEN = generateRefreshToken({ userId: user.id, email });
+    const hashedPassword = await hashPassword(password);
+
+
 
     return {
-        user,
-        ACCESS_TOKEN,
-        REFRESH_TOKEN
+        hashedPassword
     }
 }
