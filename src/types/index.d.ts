@@ -1,5 +1,5 @@
 
-
+import { UserRole } from "../../generated/prisma/enums";
 import "express";
 export interface TokenPayload {
     userId: string,

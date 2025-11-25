@@ -15,15 +15,16 @@ export const registerController = async (
     next: NextFunction
 ) => {
     try {
-        console.log(req.body)
-        const data = await registerService(req.body)
-        // res.cookie("refresh_token", REFRESH_TOKEN, REFRESH_TOKEN_COOKIE_CONFIG)
+
+        const { user, access_token, refresh_token } = await registerService(req.validatedBody)
+        res.cookie("refresh_token", refresh_token, REFRESH_TOKEN_COOKIE_CONFIG)
         successResponse(
             res,
             201,
             "Account register successful.",
             {
-                data
+                user,
+                access_token
             })
 
     } catch (error) {
