@@ -1,5 +1,5 @@
 import { CookieOptions, NextFunction, Request, Response } from "express";
-import { registerService } from "../services/auth.service";
+import { loginService, registerService } from "../services/auth.service";
 import { successResponse } from "../common/utils/apiResponse";
 
 const REFRESH_TOKEN_COOKIE_CONFIG: CookieOptions = {
@@ -8,7 +8,7 @@ const REFRESH_TOKEN_COOKIE_CONFIG: CookieOptions = {
     sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000
 }
-
+//account register
 export const registerController = async (
     req: Request,
     res: Response,
@@ -24,10 +24,37 @@ export const registerController = async (
             "Account register successful.",
             {
                 user,
-                access_token
+                token: access_token
             })
 
     } catch (error) {
         return next(error);
+    }
+}
+
+//account login
+export const loginController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const {
+            user,
+            access_token,
+            refresh_token } = await loginService(req.validatedBody);
+
+        res.cookie("refresh_token", refresh_token, REFRESH_TOKEN_COOKIE_CONFIG);
+        successResponse(
+            res,
+            200,
+            "Login successfull.",
+            {
+                user,
+                token: access_token
+            }
+        )
+    } catch (error) {
+        return next(error)
     }
 }
