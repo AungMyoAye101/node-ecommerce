@@ -1,5 +1,5 @@
 import { CookieOptions, NextFunction, Request, Response } from "express";
-import { loginService, registerService } from "../services/auth.service";
+import { loginService, logoutService, registerService } from "../services/auth.service";
 import { successResponse } from "../common/utils/apiResponse";
 
 const REFRESH_TOKEN_COOKIE_CONFIG: CookieOptions = {
@@ -53,6 +53,25 @@ export const loginController = async (
                 user,
                 token: access_token
             }
+        )
+    } catch (error) {
+        return next(error)
+    }
+}
+
+export const logoutController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        await logoutService(req.user?.userId!);
+        res.clearCookie("refresh_token");
+        successResponse(
+            res,
+            200,
+            "Logout success",
+
         )
     } catch (error) {
         return next(error)

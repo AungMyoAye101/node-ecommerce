@@ -92,3 +92,14 @@ export const loginService = async ({
     }
 
 }
+
+export const logoutService = async (
+    userId: string
+) => {
+    return await prisma.user.update({
+        where: { id: userId },
+        data: {
+            token: null
+        }
+    });
+}
