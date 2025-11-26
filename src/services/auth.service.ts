@@ -1,7 +1,8 @@
-import { generateAccessToken, generateRefreshToken } from "../common/auth/jwt"
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../common/auth/jwt"
 import { comparePasswords, hashPassword } from "../common/auth/password"
 import { BadRequestError, NotFoundError, UnAuthorizeError } from "../common/errors"
 import { prisma } from "../lib/prisma"
+import { TokenPayload } from "../types"
 import { loginType, registerType } from "../validations/auth.schema"
 
 export const registerService = async ({
@@ -102,4 +103,36 @@ export const logoutService = async (
             token: null
         }
     });
+}
+
+export const refreshTokenService = async (token: string) => {
+    const decoded = verifyRefreshToken(token);
+    if (!decoded) {
+        throw new UnAuthorizeError("Your are not authorized,")
+    }
+    const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: {
+            id: true,
+            token: true,
+            email: true,
+            role: true
+        }
+    })
+    if (!user || user.token !== token) {
+        throw new UnAuthorizeError("Invalid token.")
+    }
+    const tokenPayload: TokenPayload = {
+        userId: user.id,
+        email: user.email,
+        role: user.role
+    }
+    const access_token = await generateAccessToken(tokenPayload);
+    const refresh_token = await generateRefreshToken(tokenPayload);
+
+    await prisma.user.update({
+        where: { id: user.id },
+        data: { token: refresh_token }
+    })
+    return { access_token, refresh_token }
 }

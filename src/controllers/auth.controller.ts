@@ -1,6 +1,7 @@
 import { CookieOptions, NextFunction, Request, Response } from "express";
-import { loginService, logoutService, registerService } from "../services/auth.service";
+import { loginService, logoutService, refreshTokenService, registerService } from "../services/auth.service";
 import { successResponse } from "../common/utils/apiResponse";
+import { BadRequestError } from "../common/errors";
 
 const REFRESH_TOKEN_COOKIE_CONFIG: CookieOptions = {
     httpOnly: true,
@@ -75,5 +76,25 @@ export const logoutController = async (
         )
     } catch (error) {
         return next(error)
+    }
+}
+
+export const refreshTokenController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const token = req.cookies.refresh_token;
+        console.log(token);
+        if (!token) {
+            throw new BadRequestError("Token is required.")
+        }
+        const { access_token, refresh_token } = await refreshTokenService(token);
+        res.cookie("refresh_token", refresh_token, REFRESH_TOKEN_COOKIE_CONFIG)
+
+        successResponse(res, 200, "Refresh token success.", { token: access_token })
+    } catch (error) {
+        return next(error);
     }
 }
