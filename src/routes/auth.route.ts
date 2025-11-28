@@ -11,5 +11,4 @@ router.post('/auth/login', validateRequestBody(loginSchema), loginController);
 router.post('/auth/logout', isAuthenticated, logoutController);
 router.post('/auth/refresh_token', refreshTokenController)
 
-
 export default router;
