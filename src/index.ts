@@ -22,6 +22,7 @@ app.use(cors({
     credentials: true
 }))
 app.use(limiter);
+
 //routes
 app.use('/api/v1', authRouter)
 

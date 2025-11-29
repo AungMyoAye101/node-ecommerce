@@ -19,41 +19,69 @@ enum UserRole {
   staff
 }
 
-model User {
-  id         String   @id @default(uuid())
-  name       String
-  email      String   @unique
-  password   String
-  role       UserRole
-  token      String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+enum OrderStatus {
+  pending
+  paid
+  delivered
+  cancelled
+}
 
-  //relation
+enum PaymentStatus {
+  unpaid
+  paid
+  refunded
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(user)
+  token     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //relations
   addresses Address[]
   cart      Cart?
+  orders    Order[]
+  wishlist  Wishlist[]
+  reviews   Review[]
+
+  @@index([id, email])
 }
 
 model Address {
-  id      String @id @default(uuid())
-  line    String
-  city    String
-  country String
-  user    User   @relation(fields: [userId], references: [id])
-  userId  String
+  id         String  @id @default(uuid())
+  street     String
+  city       String
+  state      String?
+  country    String
+  postalCode String?
+  phone      String?
+  //relation to user
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
 }
 
 model Product {
   id          String   @id @default(uuid())
   name        String
   description String?
+  brand       String?
+  price       Decimal
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
   //relation
-  image     Image?
-  userId    String      @unique
+  image Image?
+
   cartItems CartItems[]
+  reviews   Review[]
+  wishlists Wishlist[]
+
+  @@index([id, name])
 }
 
 model Image {
@@ -61,32 +89,103 @@ model Image {
   name       String?
   public_id  String
   secure_url String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt
 
-  //relatiion
+  //relation 
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String  @unique
-  product   Product @relation(fields: [productId], references: [id])
 }
 
 model Cart {
-  id String @id @default(uuid())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  created_at DateTime    @default(now())
-  updated_at DateTime    @updatedAt
   //relation
-  userId     String      @unique
-  user       User        @relation(fields: [userId], references: [id])
-  cartItems  CartItems[]
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String      @unique
+  cartItems CartItems[]
 }
 
 model CartItems {
-  id          String @id @default(uuid())
-  total_price Int
+  id      String @id @default(uuid())
+  quatity Int
 
   //relation
-  productId String  @unique
-  product   Product @relation(fields: [productId], references: [id])
-  cartId    String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  cartId    String
   cart      Cart    @relation(fields: [cartId], references: [id])
+
+  @@unique([productId, cartId])
+  @@index([id, cartId])
+}
+
+model Order {
+  id             String        @id @default(uuid())
+  totalAmount    Decimal
+  status         OrderStatus   @default(pending)
+  payment_status PaymentStatus @default(unpaid)
+  createdAt      DateTime      @default(now())
+  updatedat      DateTime      @updatedAt
+
+  //relations
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  items    OrderItem[]
+  payments Payment[]
+
+  @@index([id, userId])
+}
+
+model OrderItem {
+  id       String  @id @default(uuid())
+  quantity Int
+  price    Decimal
+
+  //relation
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+
+  @@index([id, orderId])
+}
+
+model Payment {
+  id        String        @id @default(uuid())
+  amount    Decimal
+  status    PaymentStatus @default(unpaid)
+  createdAt DateTime      @default(now())
+  updatedat DateTime      @updatedAt
+  //relation 
+  order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+
+  @@index([id, status, orderId])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String
+  createAt  DateTime @default(now())
+  updatedat DateTime @updatedAt
+
+  //relation
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+
+  @@unique([userId, productId])
+  @@index([id, rating, comment, userId, productId])
+}
+
+model Wishlist {
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+
+  @@unique([userId, productId])
 }
