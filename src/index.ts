@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import type { Request, Response } from "express";
 import { errorHandler } from "./middlewares/errorHandling.middleware";
 import authRouter from "./routes/auth.route";
+import adminAuthRouter from "./routes/admin.auth.route";
 import { limiter } from "./common/utils/rateLimiter";
 dotenv.config()
 
@@ -24,7 +25,8 @@ app.use(cors({
 app.use(limiter);
 
 //routes
-app.use('/api/v1', authRouter)
+app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/admin/auth', adminAuthRouter)
 
 
 
