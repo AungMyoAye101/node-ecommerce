@@ -23,17 +23,16 @@ export const registerService = async ({
             name,
             email,
             password: hashed,
-            role: 'user'
+
         },
         select: {
             id: true,
             email: true,
             name: true,
-            role: true,
         }
     })
-    const access_token = await generateAccessToken({ userId: user.id, email: user.email, role: user.role })
-    const refresh_token = await generateRefreshToken({ userId: user.id, email: user.email, role: user.role })
+    const access_token = await generateAccessToken({ userId: user.id, email: user.email })
+    const refresh_token = await generateRefreshToken({ userId: user.id, email: user.email })
     const updateUser = await prisma.user.update({
         where: { id: user.id },
         data: { token: refresh_token },
@@ -41,9 +40,8 @@ export const registerService = async ({
             id: true,
             name: true,
             email: true,
-            role: true,
-            created_at: true,
-            updated_at: true,
+            createdAt: true,
+            updatedAt: true,
         }
     })
 
@@ -68,8 +66,8 @@ export const loginService = async ({
     if (!compare) {
         throw new UnAuthorizeError("Invalid credientel");
     }
-    const access_token = await generateAccessToken({ userId: user.id, email: user.email, role: user.role })
-    const refresh_token = await generateRefreshToken({ userId: user.id, email: user.email, role: user.role })
+    const access_token = await generateAccessToken({ userId: user.id, email: user.email })
+    const refresh_token = await generateRefreshToken({ userId: user.id, email: user.email })
     //update token 
 
     const updateUser = await prisma.user.update({
@@ -79,9 +77,9 @@ export const loginService = async ({
             id: true,
             name: true,
             email: true,
-            role: true,
-            created_at: true,
-            updated_at: true,
+
+            createdAt: true,
+            updatedAt: true,
         }
     })
 
@@ -116,7 +114,7 @@ export const refreshTokenService = async (token: string) => {
             id: true,
             token: true,
             email: true,
-            role: true
+
         }
     })
     if (!user || user.token !== token) {
@@ -125,7 +123,7 @@ export const refreshTokenService = async (token: string) => {
     const tokenPayload: TokenPayload = {
         userId: user.id,
         email: user.email,
-        role: user.role
+
     }
     const access_token = await generateAccessToken(tokenPayload);
     const refresh_token = await generateRefreshToken(tokenPayload);

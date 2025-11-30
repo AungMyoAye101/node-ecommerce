@@ -37,10 +37,10 @@ model User {
   name      String
   email     String   @unique
   password  String
-  role      UserRole @default(user)
   token     String?
+  role      String   @default("user")
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
 
   //relations
   addresses Address[]
@@ -49,7 +49,20 @@ model User {
   wishlist  Wishlist[]
   reviews   Review[]
 
-  @@index([id, email])
+  @@index([email, name])
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  token     String?
+  role      UserRole @default(staff)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([name, email])
 }
 
 model Address {
@@ -63,6 +76,22 @@ model Address {
   //relation to user
   user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String
+
+  @@index([city, country])
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String
+
+  //relations 
+  parent   Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  parentId String?
+
+  childern Category[] @relation("CategoryHierarchy")
+  products Product[]
+
+  @@index([name])
 }
 
 model Product {
@@ -71,13 +100,15 @@ model Product {
   description String?
   brand       String?
   price       Decimal
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
 
   //relation
-  image Image?
+  image      Image?
+  category   Category    @relation(fields: [categoryId], references: [id])
+  categoryId String
+  cartItems  CartItems[]
 
-  cartItems CartItems[]
   reviews   Review[]
   wishlists Wishlist[]
 
@@ -89,8 +120,8 @@ model Image {
   name       String?
   public_id  String
   secure_url String
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
 
   //relation 
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -100,7 +131,7 @@ model Image {
 model Cart {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
 
   //relation
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -128,7 +159,7 @@ model Order {
   status         OrderStatus   @default(pending)
   payment_status PaymentStatus @default(unpaid)
   createdAt      DateTime      @default(now())
-  updatedat      DateTime      @updatedAt
+  updatedat      DateTime      @default(now())
 
   //relations
   user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -136,7 +167,7 @@ model Order {
   items    OrderItem[]
   payments Payment[]
 
-  @@index([id, userId])
+  @@index([userId, status, payment_status])
 }
 
 model OrderItem {
@@ -148,7 +179,7 @@ model OrderItem {
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId String
 
-  @@index([id, orderId])
+  @@index([orderId])
 }
 
 model Payment {
@@ -156,12 +187,12 @@ model Payment {
   amount    Decimal
   status    PaymentStatus @default(unpaid)
   createdAt DateTime      @default(now())
-  updatedat DateTime      @updatedAt
+  updatedat DateTime      @default(now())
   //relation 
   order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   String
 
-  @@index([id, status, orderId])
+  @@index([status, orderId])
 }
 
 model Review {
@@ -169,7 +200,7 @@ model Review {
   rating    Int
   comment   String
   createAt  DateTime @default(now())
-  updatedat DateTime @updatedAt
+  updatedat DateTime @default(now())
 
   //relation
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -178,7 +209,7 @@ model Review {
   productId String
 
   @@unique([userId, productId])
-  @@index([id, rating, comment, userId, productId])
+  @@index([rating, comment, userId, productId])
 }
 
 model Wishlist {

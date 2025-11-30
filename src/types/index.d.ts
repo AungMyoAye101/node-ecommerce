@@ -4,7 +4,7 @@ import "express";
 export interface TokenPayload {
     userId: string,
     email: string,
-    role: UserRole
+    role?: UserRole,
 }
 
 declare global {
