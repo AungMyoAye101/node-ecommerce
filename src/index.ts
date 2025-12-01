@@ -4,9 +4,11 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import type { Request, Response } from "express";
 import { errorHandler } from "./middlewares/errorHandling.middleware";
+import { limiter } from "./common/utils/rateLimiter";
+import { isAuthenticated } from "./middlewares/auth.middleware";
 import authRouter from "./routes/auth.route";
 import adminAuthRouter from "./routes/admin.auth.route";
-import { limiter } from "./common/utils/rateLimiter";
+import addressRouter from "./routes/address.route";
 dotenv.config()
 
 const PORT = process.env.PORT || 8000;
@@ -25,10 +27,12 @@ app.use(cors({
 app.use(limiter);
 
 //routes
-app.use('/api/v1/auth', authRouter)
-app.use('/api/v1/admin/auth', adminAuthRouter)
-
-
+app.use('/api/v1', authRouter);
+app.use('/api/v1/admin/auth', adminAuthRouter);
+app.use('/api/v1/address', isAuthenticated, addressRouter);
+app.get('/health', (req, res) => {
+    res.status(200).json({ message: 'Good' })
+})
 
 //error handling middleware must be last middleware
 
