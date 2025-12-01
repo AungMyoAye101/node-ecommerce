@@ -27,7 +27,7 @@ app.use(cors({
 app.use(limiter);
 
 //routes
-app.use('/api/v1', authRouter);
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/admin/auth', adminAuthRouter);
 app.use('/api/v1/address', isAuthenticated, addressRouter);
 app.get('/health', (req, res) => {

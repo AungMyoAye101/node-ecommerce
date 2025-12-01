@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createAddressService, updateAddressService } from "../services/address.service";
+import { createAddressService, getAddressByUserIdService, updateAddressService } from "../services/address.service";
 import { successResponse } from "../common/utils/apiResponse";
 
 export const addressCreateControl = async (
@@ -29,24 +29,15 @@ export const addressUpdateControl = async (
         next(error)
     }
 }
-export const getAllAddressControl = async (
+
+export const getAddressByUserIdControl = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-
-    } catch (error) {
-        next(error)
-    }
-}
-export const getAddressByIdControl = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-
+        const data = await getAddressByUserIdService(req.validatedParams);
+        successResponse(res, 200, "Get address by id")
     } catch (error) {
         next(error)
     }

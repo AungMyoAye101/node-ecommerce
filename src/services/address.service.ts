@@ -35,9 +35,17 @@ export const updateAddressService = async (
         data
     })
 }
-export const getAllAddressService = () => {
 
-}
-export const getAddressByIdService = () => {
-
+export const getAddressByUserIdService = async (userId: string) => {
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    if (!user) {
+        throw new NotFoundError("Invalid user id")
+    }
+    const address = await prisma.address.findMany({
+        where: { userId }
+    })
+    if (!address) {
+        throw new NotFoundError("Address not found.")
+    }
+    return address;
 }

@@ -6,7 +6,7 @@ import { isAuthenticated } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.post('/auth/register', validateRequestBody(registerSchema), registerController);
+router.post('/register', validateRequestBody(registerSchema), registerController);
 router.post('/login', validateRequestBody(loginSchema), loginController);
 router.post('/logout', isAuthenticated, logoutController);
 router.post('/refresh_token', refreshTokenController)
