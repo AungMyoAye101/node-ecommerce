@@ -36,8 +36,6 @@ export const getAddressByUserIdControl = async (
     next: NextFunction
 ) => {
     try {
-        const userId = req.validatedParams.id;
-        console.log(userId)
         const data = await getAddressByUserIdService(req.validatedParams.id);
         successResponse(res, 200, "Get address by id", { data })
     } catch (error) {
@@ -51,10 +49,10 @@ export const addressDeleteControl = async (
     next: NextFunction
 ) => {
     try {
-        req.validatedParams.id
+
         const data = await deleteAddressService(req.validatedParams.id);
 
-        successResponse(res, 201, "Address deleted success.", { data })
+        successResponse(res, 201, "Address deleted success.", data)
     } catch (error) {
         next(error)
     }
