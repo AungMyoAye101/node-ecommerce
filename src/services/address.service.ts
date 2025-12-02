@@ -1,6 +1,6 @@
-import { NotFoundError } from "../common/errors";
+import { BadRequestError, NotFoundError } from "../common/errors";
 import { prisma } from "../lib/prisma"
-import { addressType } from "../validations/address.schema"
+import { addressType, addressUpdateType } from "../validations/address.schema"
 
 export const createAddressService = async (
     data: addressType
@@ -14,11 +14,10 @@ export const createAddressService = async (
     return await prisma.address.create(
         { data }
     )
-
 }
 export const updateAddressService = async (
     addressId: string,
-    data: addressType
+    data: addressUpdateType
 ) => {
     const address = await prisma.address.findUnique({
         where: { id: addressId },
@@ -30,7 +29,7 @@ export const updateAddressService = async (
     if (!address) {
         throw new NotFoundError("Invalid address id.");
     }
-    await prisma.address.update({
+    return await prisma.address.update({
         where: { id: address.id },
         data
     })
@@ -48,4 +47,21 @@ export const getAddressByUserIdService = async (userId: string) => {
         throw new NotFoundError("Address not found.")
     }
     return address;
+}
+export const deleteAddressService = async (
+    addressId: string,
+) => {
+    const address = await prisma.address.findUnique({
+        where: { id: addressId },
+        select: {
+            id: true,
+            userId: true,
+        }
+    });
+    if (!address) {
+        throw new NotFoundError("Invalid address id.");
+    }
+    return await prisma.address.delete({
+        where: { id: address.id },
+    })
 }

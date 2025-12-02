@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { createAddressService, getAddressByUserIdService, updateAddressService } from "../services/address.service";
+import { createAddressService, deleteAddressService, getAddressByUserIdService, updateAddressService } from "../services/address.service";
 import { successResponse } from "../common/utils/apiResponse";
 
 export const addressCreateControl = async (
@@ -21,7 +21,7 @@ export const addressUpdateControl = async (
     next: NextFunction
 ) => {
     try {
-        const [addressId, updatedata] = [req.validatedParams, req.validatedBody]
+        const [addressId, updatedata] = [req.validatedParams.id, req.validatedBody]
         const data = await updateAddressService(addressId, updatedata);
 
         successResponse(res, 201, "Address created success.", { data })
@@ -36,8 +36,25 @@ export const getAddressByUserIdControl = async (
     next: NextFunction
 ) => {
     try {
-        const data = await getAddressByUserIdService(req.validatedParams);
-        successResponse(res, 200, "Get address by id")
+        const userId = req.validatedParams.id;
+        console.log(userId)
+        const data = await getAddressByUserIdService(req.validatedParams.id);
+        successResponse(res, 200, "Get address by id", { data })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const addressDeleteControl = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        req.validatedParams.id
+        const data = await deleteAddressService(req.validatedParams.id);
+
+        successResponse(res, 201, "Address deleted success.", { data })
     } catch (error) {
         next(error)
     }
