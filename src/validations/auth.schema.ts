@@ -22,5 +22,9 @@ export const loginSchema = z.object({
             .min(6, "Password must be at least 6 characters long.")
 })
 
+
+export const IDSchmea = z.object({
+    id: z.uuid()
+})
 export type registerType = z.infer<typeof registerSchema>
 export type loginType = z.infer<typeof loginSchema>
