@@ -9,6 +9,7 @@ import { isAuthenticated } from "./middlewares/auth.middleware";
 import authRouter from "./routes/auth.route";
 import adminAuthRouter from "./routes/admin.auth.route";
 import addressRouter from "./routes/address.route";
+import productRouter from "./routes/product.route";
 dotenv.config()
 
 const PORT = process.env.PORT || 8000;
@@ -24,12 +25,14 @@ app.use(cors({
     origin: "*",
     credentials: true
 }))
-// app.use(limiter);
+// limit req rate
+app.use(limiter);
 
 //routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/admin/auth', adminAuthRouter);
 app.use('/api/v1/address', isAuthenticated, addressRouter);
+app.use('/api/v1/product', isAuthenticated, productRouter);
 app.get('/health', (req, res) => {
     res.status(200).json({ message: 'Good' })
 })
