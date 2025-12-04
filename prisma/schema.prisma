@@ -100,12 +100,14 @@ model Product {
   description String?
   brand       String?
   price       Decimal
+  discount    Decimal?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
 
-  //relation
+  //relations
+  variants   ProductVariant[]
   image      Image?
-  category   Category    @relation(fields: [categoryId], references: [id])
+  category   Category         @relation(fields: [categoryId], references: [id])
   categoryId String
   cartItems  CartItems[]
 
@@ -116,16 +118,40 @@ model Product {
 }
 
 model Image {
-  id         String   @id @default(uuid())
+  id         String  @id @default(uuid())
   name       String?
   public_id  String
   secure_url String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now())
 
   //relation 
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String  @unique
+}
+
+model ProductVariant {
+  id        String   @id @default(uuid())
+  color     String
+  storage   String
+  price     Decimal
+  sku       String   @unique
+  stock     Stock[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //relations
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Stock {
+  id        String         @id @default(uuid())
+  quatity   Int
+  reason    String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  //relation
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
 }
 
 model Cart {
